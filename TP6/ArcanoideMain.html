@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html>
+<head> <title> Pong ! </title> </head>
+<body>
+
+<script>
+var dir = Math.round(Math.random()); //Left or right for ball
+var axe = Math.round(Math.random()); //up or down for ball
+var aip = Math.round(Math.random()); // left or right for AI
+var scoreA = 1; //score for player A
+var scoreB = 1; //score for player B
+var vit; //Speed incrementation
+var speed = 20;
+var ia;  //AI activation
+var lancement; //Gamestart
+
+
+//Ball object
+var ball = new Object();
+ball.ballx = Math.floor(Math.random() * 400) + 10;
+ball.bally = 189;
+ball.speed = 1;
+
+//Player prototype
+function Player(px, py) {
+this.px = px;
+this.py = py;
+this.pheigh = 50;
+this.pwidth = 5;
+}
+
+var player1 = new Player(300, 15);
+var player2 = new Player(80, 400);
+
+var tabObject = [];
+
+//Start object
+var startcoord = new Object();
+startcoord.x = 0;
+startcoord.y = 0;
+
+//End object
+var endcoord = new Object();
+endcoord.x = 0;
+endcoord.y = 0;
+
+function drawgameboard(){
+var canvas=document.getElementById("gameboard");
+if(!canvas.getContext){return;}
+
+//Board
+var ctx=canvas.getContext("2d");
+ctx.fillStyle = "#000000";
+ctx.clearRect(10,10,400,400);
+
+ctx.fillRect(10,10,400,400);
+
+// Ball
+ctx.fillStyle = "#3370d4";
+ctx.beginPath();
+
+ctx.arc(ball.ballx,ball.bally,5,0,2*Math.PI,true);
+ctx.fill();
+ctx.stroke();
+
+//Player 1
+/*ctx.fillStyle = "#c2b675";
+ctx.clearRect(player1.px,player1.py,player1.pheigh, player1.pwidth);
+ctx.fillRect(player1.px, player1.py,player1.pheigh, player1.pwidth);
+ctx.stroke();*/
+
+//Player 2
+ctx.fillStyle = "#279890";
+ctx.clearRect(player2.px,player2.py,player2.pheigh,player2.pwidth);
+ctx.fillRect(player2.px,player2.py,player2.pheigh,player2.pwidth);
+ctx.stroke();
+}
+
+
+function downball(){
+if (ball.bally < 400){
+  ball.bally++;
+}
+if(ball.bally == player2.py-5){
+  if((ball.ballx >= player2.px+10) && (ball.ballx <= player2.px+40)){
+   axe = 1;
+   drawgameboard();
+ }
+ else if((ball.ballx >= player2.px-2 & ball.ballx < player2.px+10) || (ball.ballx <= player2.px+52 & ball.ballx > player2.px+40)){
+  vit = setInterval(move,speed) ;
+  ball.speed +=1;
+  axe = 1;
+  drawgameboard();
+}
+else{
+  renitPosition();
+  var resultG = document.getElementById("Resultgreen");
+  resultG.value = scoreA;
+  scoreA++;
+}
+}
+}
+
+
+function upball(){
+if (ball.bally > 20){
+ball.bally--;
+}
+if(ball.bally == player1.py+10){
+if((ball.ballx >= player1.px+10) && (ball.ballx <= player1.px+40)){
+ axe = 0;
+ drawgameboard();
+}
+else if((ball.ballx >= player1.px-2 & ball.ballx < player1.px+10) || (ball.ballx <= player1.px+52 & ball.ballx > player1.px+40)){
+vit = setInterval(move,speed);
+ball.speed +=1;
+axe = 0;
+drawgameboard();
+}
+else{
+renitPosition();
+var resultR = document.getElementById("Resultred");
+resultR.value = scoreB;
+scoreB++;
+}
+}
+}
+
+
+function rightball(){
+if ((ball.bally != 400 || ball.bally != 15)  && (ball.ballx <= 394 || ball.ballx >= 21)){
+ball.ballx++;}
+if(ball.ballx == 404 && !((ball.ballx <= player2.px-10 && ball.ballx >= player2.px+10) && ball.bally == 395))
+  dir = 0;
+drawgameboard();
+}
+
+function leftball(){
+if ((ball.bally != 400 || ball.bally != 15)  && (ball.ballx <= 394 || ball.ballx >= 21)) { // verifie qu'on est pas au bord
+
+ball.ballx--;
+}
+if(ball.ballx == 16 && !((ball.ballx >= player1.px-10 && ball.ballx <= player1.px+10) && ball.bally == 20))
+dir = 1;
+drawgameboard();
+}
+
+//Ball movement
+function move(){
+if(dir) rightball(); else leftball();
+if(axe) upball(); else downball();
+var xSpeed = document.getElementById("speedx");
+var ySpeed = document.getElementById("speedy");
+var bSpeed = document.getElementById("speedb");
+xSpeed.value = ball.ballx/speed*ball.speed;
+ySpeed.value = ball.bally/speed*ball.speed;
+bSpeed.value = ball.speed;
+}
+
+
+function startball() {
+clearInterval(vit);
+}
+
+function renitPosition(){
+alert("Un joueur a marqué");
+ball.ballx = Math.floor(Math.random() * 400) + 10;
+ball.bally = 210;
+dir = Math.round(Math.random());
+axe = Math.round(Math.random());
+startball();
+gamestop();
+gamestart();
+ball.speed = 1;
+}
+
+
+//Player movement
+function leftp(px1){
+if(px1 >16){
+ return px1 = px1 - 8;
+}
+else {return px1;}
+}
+
+function rightp(px2){
+if(px2 < 355){
+ return px2 = px2 + 8;
+}
+else {return px2;}
+}
+
+// AI Movement
+function leftAI(px1){
+if(px1 >16){
+ return px1 = px1 - 8;
+}
+else {
+ aip =0;
+ return px1;}
+}
+
+function rightAI(px2){
+ if(px2 < 355){
+   return px2 = px2 + 8;
+ }
+ else {
+   aip = 1
+   return px2;}
+ }
+
+ function lefthmAI(px1, obj){
+if(px1 >16){ // à modfier
+ if(obj<=px1){
+   return px1 = px1 - 4;
+ }
+ else {aip = 0;
+  return px1;}
+}
+else {aip = 0;
+ return px1;}
+}
+
+function righthmAI(px2, obj){
+ if(px2 <= 355){
+  if(obj>=px2){
+   return px2 = px2 + 4;
+ }
+ else {aip = 1;
+  return px2;}
+}
+else {aip = 1;
+ return px2;}
+
+}
+//First AI movement
+function movep(){
+if(aip) player1.px = leftAI(player1.px); else player1.px = rightAI(player1.px);
+drawgameboard();
+}
+
+//Second AI movement
+function movehm(){
+if(aip) player1.px = lefthmAI(player1.px, ball.ballx); else player1.px = righthmAI(player1.px, ball.ballx);
+drawgameboard();
+}
+
+// 2 players can play
+window.addEventListener("keydown", keysPressed, false);
+window.addEventListener("keyup", keysReleased, false);
+
+var keys = [];
+
+function keysPressed(e) {
+// store an entry for every key pressed
+keys[e.keyCode] = true;
+
+if (keys[37]) {
+  player1.px = leftp(player1.px);
+  drawgameboard();
+}
+if (keys[81]) {
+  player2.px = leftp(player2.px);
+  drawgameboard();
+}
+if (keys[39]) {
+  player1.px = rightp(player1.px);
+  drawgameboard();
+}
+if (keys[68]) {
+  player2.px = rightp(player2.px);
+  drawgameboard();
+}    
+}
+
+function keysReleased(e) {
+// mark keys that were released
+keys[e.keyCode] = false;
+}
+
+
+//permet de bouger le plateau IA
+function moveIA(){
+if(document.getElementById("checkBox").checked == true){
+  clearInterval(ia);
+  ia = setInterval(movep,50);
+}else{
+  clearInterval(ia);
+}
+
+}
+function moveIAHM(){
+if(document.getElementById("checkBoxHM").checked == true){
+  clearInterval(ia);
+  ia = setInterval(movehm,100);
+}else{
+  clearInterval(ia);
+}
+}
+
+
+//Permet d'arreter le jeu
+function gamestop(){
+clearInterval(lancement);
+clearInterval(vit);
+}
+
+
+//Lancement jeu
+function gamestart(){
+lancement = setInterval(move,20)
+}
+
+function readXMLfile(){
+
+var xhttp = new XMLHttpRequest();
+xhttp.onreadystatechange = function() {
+
+
+  if (this.readyState == 4 && this.status == 200) {
+    navigatesNodesXML(this);
+  }
+};
+// C'est ici qu'on met le nom du fichier XML
+
+xhttp.open("GET", document.getElementById("XMLLoad").value, true);
+xhttp.send();
+
+}
+
+
+function navigatesNodesXML(xml){
+
+var canvas=document.getElementById("gameboard");
+if(!canvas.getContext){return;}
+var ctx=canvas.getContext("2d");
+var rect = canvas.getBoundingClientRect();
+
+var x, y, xmlDoc;
+xmlDoc = xml.responseXML;
+var i=0;
+var expr;
+
+// Var objet
+// Manque juste a get les
+document.getElementById("gameboard").getAttribute("width").value = xmlDoc.getElementsByTagName("arkanoidlevel")[0].getAttribute("width");
+
+document.getElementById("gameboard").getAttribute("height").value = xmlDoc.getElementsByTagName("arkanoidlevel")[0].getAttribute("height");
+
+
+for(i; i < xmlDoc.getElementsByTagName("arkanoidlevel")[0].children.length; i++){
+    x = xmlDoc.getElementsByTagName("arkanoidlevel")[0].children[i];
+    console.log(x);
+
+  startcoord.x = x.getAttribute("left");
+  startcoord.y = x.getAttribute("top");
+
+  ctx.strokeStyle = x.getAttribute("color");
+  ctx.beginPath();
+
+  endcoord.x = x.getAttribute("right");
+  endcoord.y = x.getAttribute("bottom");
+  
+if(x.nodeName == "brick"){
+    var brickObject = new Object();
+    brickObject.name = x.nodeName;
+    brickObject.left = startcoord.x;
+    brickObject.top = startcoord.y;
+    brickObject.right = endcoord.x;
+    brickObject.bottom = endcoord.y;
+
+    tabObject.push(brickObject);
+
+  }else{
+
+    var wallObject = new Object();
+    wallObject.name = x.nodeName;
+    wallObject.left = startcoord.x;
+    wallObject.top = startcoord.y;
+    wallObject.right = endcoord.x;
+    wallObject.bottom = endcoord.y;
+
+    tabObject.push(wallObject);
+  }
+
+  var length = endcoord.x  - startcoord.x;
+  var width = endcoord.y - startcoord.x;
+
+  ctx.rect(startcoord.x,startcoord.y, length,width);
+  ctx.stroke();
+  ctx.closePath();
+
+
+
+      }
+
+console.log(tabObject);
+
+}
+
+
+
+
+</script>
+
+Pong!
+<br/>
+
+<canvas id="gameboard" width="410" height="410" > This is not supported!</canvas> <br />
+<input type="button" value="Start" onclick="gamestart();" />
+<input type="button" value="Stop" onclick="gamestop();" />
+<br/>
+Statistic
+<table style="width:50%">
+<tr>
+<td>Yellow wins</td>
+<td><input type="text" id="Resultgreen" value = 0 readonly="readonly"></td>
+</tr>
+<tr>
+<td>Green wins</td>
+<td><input type="text" id="Resultred" value = 0 readonly="readonly"></td>
+</tr>
+<tr>
+<td>X speed</td>
+<td><input type="text" id="speedx" value=0 readonly="readonly"></td>
+</tr>
+<tr>
+<td>Y speed</td>
+<td><input type="text" id="speedy" value=0 readonly="readonly"></td>
+</tr>
+<tr>
+<td>ball speed</td>
+<td><input type="text" id="speedb" value=0 readonly="readonly"></td>
+</tr>
+<tr>
+<td>Computer Yellow</td>
+<td><input id="checkBox" type="checkbox" onclick="moveIA();"></td>
+</tr>
+<tr>
+<td>Hard Mode</td>
+<td><input id="checkBoxHM" type="checkbox" onclick="moveIAHM();" ></td>
+</tr>
+<tr>
+<td>
+  XML Load
+  <input type="text" id="XMLLoad">
+  <br>
+
+  <input type="button" value="Load" onclick="readXMLfile();" />
+</td>
+</tr>
+</table>
+</body>
+</html>

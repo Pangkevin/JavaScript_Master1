@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+ <head>
+ 
+ <title> Calculate </title>
+ 
+  <script>
+    var result = 0;
+
+   function Result()
+   {
+     ope = document.getElementById("Result").value;
+     result = eval(ope);
+     document.getElementById("Result").value = result;
+   }
+   
+      function Displaynumber(e)
+   {
+      
+      document.getElementById("Result").value += e.value;
+      
+   }
+       function Clear_calc()
+   {
+      document.getElementById("Result").value = "";
+   }
+   
+ 
+  </script>
+ </head>
+ 
+ <body>
+
+  Let's calculate
+   <br>
+   <input type="text" id="Result" readonly="readonly">
+   <br>
+    <input type="button" value="1" onclick="Displaynumber(this)">
+    <input type="button" value="2" onclick="Displaynumber(this)">
+    <input type="button" value="3" onclick="Displaynumber(this)">
+    <input type="button" value="+" onclick="Displaynumber(this)">
+   <br>
+    <input type="button" value="4" onclick="Displaynumber(this)">
+    <input type="button" value="5" onclick="Displaynumber(this)">
+    <input type="button" value="6" onclick="Displaynumber(this)">
+    <input type="button" value="-" onclick="Displaynumber(this)">
+   <br>
+    <input type="button" value="7" onclick="Displaynumber(this)">
+    <input type="button" value="8" onclick="Displaynumber(this)">
+    <input type="button" value="9" onclick="Displaynumber(this)">
+    <input type="button" value="*" onclick="Displaynumber(this)">
+   <br>
+    <input type="button" value="C" onclick="Clear_calc()">
+    <input type="button" value="0" onclick="Displaynumber(this)">
+    <input type="button" value="=" onclick="Result()">
+    <input type="button" value="/" onclick="Displaynumber(this)">
+ 
+ </body>
+ 
+</html>

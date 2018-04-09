@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Play Tic Tac Toe</title>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+        span {
+        opacity:0.75;
+        height: 190px;
+        width: 190px;
+        border: 2px solid white;
+        }
+
+        img {
+            height: 170px;
+            width: 170px;
+            border: 2px solid white;
+            }
+
+         h1 {
+             color: yellow;
+            }
+
+         body {
+            background-image:url(https://i.imgur.com/EzsN8kJ.jpg);
+            }
+
+        </style>style>
+
+	   <script>
+        var cptplayer= 0 
+        var winner = ""
+
+        function main(value)
+        {   
+
+            var playerTurn = cptplayer % 2 
+            var getId = document.getElementById(value)
+            var test = document.getElementById(value).getAttribute('value')
+            if(test == null){
+            if(cptplayer < 8){
+
+
+                if(playerTurn == 0){
+
+                    
+                    getId.setAttribute('value', "player1");
+                    getId.innerHTML = '<img src="http://2.bp.blogspot.com/-piUbJEk1WNA/UV2la7sJQPI/AAAAAAAASpQ/pL3A62Xz7tE/s1600/darthsidious.png"></img>'
+                    checker("player1");
+                  
+                }else{
+
+                    getId.setAttribute('value', "player2");
+                    getId.innerHTML = '<img src="https://vignette.wikia.nocookie.net/theclonewiki/images/2/25/Yoda_detail_cw_model.png"></img>'
+                    checker("player2");
+                }
+            }else{
+    
+                getId.setAttribute('value', "player1");
+                getId.innerHTML = '<img src="http://2.bp.blogspot.com/-piUbJEk1WNA/UV2la7sJQPI/AAAAAAAASpQ/pL3A62Xz7tE/s1600/darthsidious.png"></img>'
+                checker("player1");
+                alert("The battle is over!!") 
+                refresh()
+
+
+            }
+
+            cptplayer = cptplayer + 1;
+            var td = document.getElementById(value).getAttribute('id')
+        }else{
+            alert("Not allowed to overwritting");
+        }
+
+        }
+
+        function checker(player){
+
+            var value11 = document.getElementById(11).getAttribute('value')
+            var value12 = document.getElementById(12).getAttribute('value')
+            var value13 = document.getElementById(13).getAttribute('value')
+
+            var value21 = document.getElementById(21).getAttribute('value')
+            var value22 = document.getElementById(22).getAttribute('value')
+            var value23 = document.getElementById(23).getAttribute('value')
+            
+            var value31 = document.getElementById(31).getAttribute('value')
+            var value32 = document.getElementById(32).getAttribute('value')
+            var value33 = document.getElementById(33).getAttribute('value')
+
+            if(value11 == player && value21 == player && value31 == player){
+
+                cptplayer = 9;
+                winner = player;
+                alert("The "+winner+" won")
+                refresh()
+
+            }
+
+            else if(value12 == player && value22 == player && value32 == player){
+                cptplayer = 9;
+                winner = player;
+                alert("The "+winner+" won") 
+                refresh()
+            }
+
+            else if(value13 == player && value23 == player && value33 == player){
+
+                cptplayer = 9;
+                winner = player;
+                alert("The "+winner+" won")
+                refresh()
+            }
+
+            else if(value11 == player && value12 == player && value13 == player){
+                cptplayer = 9;
+                winner = player;
+                alert("The "+winner+" won")
+                refresh()
+            }
+
+            else if(value21 == player && value22 == player && value23 == player){
+                cptplayer = 9;
+                winner = player;
+                alert("The "+winner+" won")
+                refresh()
+            }
+
+            else if(value31 == player && value32 == player && value33 == player){
+                cptplayer = 9;
+                winner = player;
+                alert("The "+winner+" won")
+                refresh() 
+            }
+
+            else if(value11 == player && value22 == player && value33 == player){
+                 cptplayer = 9;
+                 winner = player;
+                 alert("The "+winner+" won")
+                 refresh()
+            }
+
+            else if(value13 == player && value22 == player && value31 == player){
+                 cptplayer = 9;
+                 winner = player;
+                 alert("The "+winner+" won")
+                 refresh()
+            }
+
+        }
+
+        function refresh(){
+             document.location.reload(true); 
+        }
+
+     
+
+       </script>
+    </head>
+
+    <body>
+
+
+<div class="container" >
+<h1 class="display-1 col-md-offset-6">Tic Tac Toe </h1>
+<h1 class="display-1 col-md-offset-5">May the force be with you!!</h1>
+
+ <div class="btn-group-horizontal col-md-offset-4"> 
+    <span id="11"  class="btn btn-default border border-dark " onclick="main(11)" ></span>
+    <span id="12"  class="btn btn-default border border-dark" onclick="main(12)" ></span>
+    <span id="13"  class="btn btn-default border border-dark " onclick="main(13)"></span>>
+  </div>
+   <div class="btn-group-horizontal col-md-offset-4">
+    <span id="21"  class="btn btn-default border border-dark " onclick="main(21)" ></span>
+    <span id="22"  class="btn btn-default border border-dark " onclick="main(22)" ></span>
+    <span id="23"  class="btn btn-default border border-dark " onclick="main(23)" ></span>
+  </div>
+   <div class="btn-group-horizontal col-md-offset-4">
+    <span id="31"  class="btn btn-default border border-dark " onclick="main(31)" ></span>
+    <span id="32"  class="btn btn-default border border-dark " onclick="main(32)" ></span>
+    <span id="33"  class="btn btn-default border border-dark " onclick="main(33)" ></span>
+  </div>
+  <button type="button" class="btn btn-primary btn-lg btn-warning col-md-offset-6" onclick="refresh()">Refresh game Padawan</button>
+</div>
+     
+
+ 
+    </body>
+</html>
