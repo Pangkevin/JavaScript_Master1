@@ -391,6 +391,9 @@
          endcoord.x = x.getAttribute("right");
          endcoord.y = x.getAttribute("bottom");
          
+         var length = endcoord.x  - startcoord.x;
+         var width = endcoord.y - startcoord.y;
+         
          if(x.nodeName == "brick"){
          var brickObject = new Object();
          brickObject.name = x.nodeName;
@@ -400,6 +403,8 @@
          brickObject.bottom = endcoord.y;
          
          tabObject.push(brickObject);
+         
+         ctx.rect(startcoord.x,startcoord.y, length,width);
          
          }else{
          
@@ -411,12 +416,10 @@
          wallObject.bottom = endcoord.y;
          
          tabObject.push(wallObject);
+         ctx.fillStyle = x.getAttribute("color");
+         ctx.fillRect(startcoord.x,startcoord.y, length,width);
          }
-         
-         var length = endcoord.x  - startcoord.x;
-         var width = endcoord.y - startcoord.x;
-         
-         ctx.rect(startcoord.x,startcoord.y, length,width);
+
          ctx.stroke();
          ctx.closePath();
          
