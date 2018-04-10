@@ -1,381 +1,487 @@
 <!DOCTYPE html>
 <html>
-<head> <title> Paint ! </title>
-<meta charset="UTF-8">
-</head>
-<body>
- 
-<script>
-var canvas = document.createElement('canvas');
-canvas.id = "gameboard";
-canvas.width = document.getElementById("canvasY");
-canvas.height = document.getElementById("canvasX");
-var canvpos = document.getElementById("canvaspos");
-//canvpos.appendChild(canvas);//A corriger
-var ctx ;
-var imageData ;
-  
- 
- 
-// Pour savoir si on arrête de dessiner définitivement la droite
-var booleanWall = false;
-var booleanBrick= false;
- 
- 
-// Permet d'update la modif canvas car on clean a chaque fois qu'on dessine
-var savedDraws = [];
-var imgData = null;
-
-
-//Start object
-var startcoord = new Object();
-startcoord.x = 0;
-startcoord.y = 0;
- 
-//End object
-var endcoord = new Object();
-endcoord.x = 0;
-endcoord.y = 0;
- 
- var booleanFin ;
-//setInterval(drawgameboard,10);
-
-// Variables pour XML
-
-// Cette variable va nous servir à concatener chaque case du tableau pour en faire un fichier xml 
-var textXmlSave="";
-var varxmlDoc;
-
-
-// Ce tableau permet se stocker chaque balise action dans une case pour permettre le undo
-var savedDrawsXml = [];
-var indexTab = 0;
-
-
-savedDrawsXml.push("<arkanoidelevel>");
-
-/-----------------------------------------------------------------------------------/  
- 
-function clearboard(){
-  var canvas=document.getElementById("gameboard");
-  if(!canvas.getContext){return;}
- 
-  //Board
-  var ctx=canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  savedDrawsXml.splice(0, savedDrawsXml.length)
-  document.getElementById("displayXML").innerHTML = ""; 
-
-}
-/-----------------------------------------------------------------------------------/  
- 
-
- function restoreCanvas(){
-
-  var ctx=canvas.getContext("2d");
-  var length = savedDraws.length;
-  var img = savedDraws[length-1];
-  if (img != null)
-    ctx.putImageData(img,0,0);
-
- }
-
- function saveCanvas(){
-  var canvas=document.getElementById("gameboard");
-  var ctx=canvas.getContext("2d");
-  var img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  savedDraws.push(img);
- }
-
-
-
-// Premier point, on recupère le point où on clique
-function getFirstPoint(e){
-  canvas=document.getElementById("gameboard");
-  var ctx=canvas.getContext("2d");
-  var rect = canvas.getBoundingClientRect();
-  var X = e.clientX - rect.left;
-  var Y = e.clientY - rect.top; // Pos Y
-
-  startcoord.x = X;
-  startcoord.y = Y;
-
-  if  (document.getElementById('brick').checked) {
-     booleanBrick = true;
-     addXmlSave("brick");
-  }
-  
- else if  (document.getElementById('wall').checked) {
-    booleanWall = true;
-    addXmlSave("wall"); 
-  }
-
-  booleanFin = true;
-}
- 
-/-----------------------------------------------------------------------------------/  
- 
-// Dernier point, on recupère le point où on arrrete de cliquer
-function drawingEnd(e){
-   var canvas=document.getElementById("gameboard");
-  if(!canvas.getContext){return;}
-    var ctx=canvas.getContext("2d");
-     
-
-    if(booleanWall){
-        imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        booleanWall = false;
-        drawWall(e);
-     
-    }
-
- 
-   
-      if(booleanBrick){
-        imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        booleanBrick = false;
-        drawBrick(e);
-       
-    }
- 
- booleanFin = false;
- 
- 
-}
- 
-/-----------------------------------------------------------------------------------/  
- 
-function draw(){
-
-  //ctx.clearRect(0,0,canvas.width,canvas.height);
-  document.getElementById("gameboard").addEventListener("mousedown", getFirstPoint);
- 
-  if (document.getElementById('brick').checked) {
-    document.getElementById("gameboard").addEventListener("mousemove", drawBrick);
-  }
- else if  (document.getElementById('wall').checked) {
-       document.getElementById("gameboard").addEventListener("mousemove", drawWall);
-  }
-
-    document.getElementById("gameboard").addEventListener("mouseup",  drawingEnd);
-
-}
- 
-
-/-----------------------------------------------------------------------------------/    
-    function drawBrick(e){
-
-      var canvas=document.getElementById("gameboard");
-    if(!canvas.getContext){return;}
-      var ctx=canvas.getContext("2d");
-        var rect = canvas.getBoundingClientRect();
-     
-  if(!booleanFin){
-    saveCanvas();
-    return;
-  }
-
-if(booleanBrick){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  restoreCanvas();
-
-
-  ctx.strokeStyle = document.getElementById("color").value;
-  ctx.lineWidth= 1 ;
-  ctx.beginPath();
-        // Init radius
-  endcoord.x = e.clientX - rect.left;
-  endcoord.y = e.clientY - rect.top;
-  var length = endcoord.x-startcoord.x
-  var width = endcoord.y - startcoord.y;
-  ctx.rect(startcoord.x,startcoord.y, length,width);
-  ctx.stroke();
-  ctx.closePath();
-  
-  savedDrawsXml[indexTab] = "<brick color=\""+document.getElementById("color").value+"\" left=\""+ startcoord.x+"\" top=\""+startcoord.y+"\"  right=\""+ endcoord.x+"\" bottom=\""+ endcoord.y+"\"></brick>"; 
-
-   saveDrawXml(); 
- 
-   }
-    }
- 
-
-/-----------------------------------------------------------------------------------/  
-    function drawWall(e){
-
-      var canvas=document.getElementById("gameboard");
-    if(!canvas.getContext){return;}
-      var ctx=canvas.getContext("2d");
-        var rect = canvas.getBoundingClientRect();
-     
-  if(!booleanFin){
-    saveCanvas();
-    return;
-  }
-
-if(booleanWall){
-
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  restoreCanvas();
-
-
-  ctx.fillStyle = document.getElementById("color").value;
-  ctx.lineWidth= 1;
-        // Init radius
-  endcoord.x = e.clientX - rect.left;
-  endcoord.y = e.clientY - rect.top;
-  var length = endcoord.x-startcoord.x
-  var width = endcoord.y - startcoord.y;
-  ctx.fillRect(startcoord.x,startcoord.y, length,width);
-
-  savedDrawsXml[indexTab] = "<wall color=\""+document.getElementById("color").value+"\" left=\""+ startcoord.x+"\" top=\""+startcoord.y+"\"  right=\""+ endcoord.x+"\" bottom=\""+ endcoord.y+"\"></"+itemForm+">";  
- 
-   }
-
-   saveDrawXml();
-    
-   }
-    
- 
-
-/-----------------------------------------------------------------------------------/  
-  
-function drawgameboard(){
-  var canvas=document.getElementById("gameboard");
-  if(!canvas.getContext){return;}
- 
-  draw();
- 
-  //Board
-  var ctx=canvas.getContext("2d");
-  ctx.fillStyle = "black";
-  ctx.clearRect(0,0,500,500);
-  ctx.fillRect(0,0,500,500);
- 
-}
-/-----------------------------------------------------------------------------------/  
- 
-function Increasewidth(){
-var canvaswidth = document.getElementById("canvasY");
-        canvaswidth.value ++;
-      }
-/-----------------------------------------------------------------------------------/  
-     
-function Decreasewidth(){
-        var canvaswidth = document.getElementById("canvasY");
-        if (Thickness.value >1){
-        canvaswidth.value --;
-        } else {
-        canvaswidth.value = canvaswidth.value;
-      }      
-}
- 
- 
-function Increaselength(){
-var canvaslength = document.getElementById("canvasX");
-        canvaslength.value ++;
-      }
-/-----------------------------------------------------------------------------------/  
-     
-function Decreaselength(){
-        var canvaslength = document.getElementById("canvasX");
-        if (canvaslength.value >1){
-        canvaslength.value --;
-        } else {
-        canvaslength.value = canvaslength.value;
-      }      
-}
-/-----------------------------------------------------------------------------------/ 
-
- function addXmlSave(itemForm){
-
-    savedDrawsXml.push("<"+itemForm+" color=\""+document.getElementById("color").value+"\" left=\""+ startcoord.x+"\" top=\""+startcoord.y+"\"  right=\""+ endcoord.x+"\" bottom=\""+ endcoord.y+"\"></"+itemForm+">");
-
-    indexTab++;
-
-    }
-
-function saveDrawXml(){
-
-
-  // Faut pas l'appeler i et j pcq c'est reservé et que ça provoque des catastrophes
-
-  var  y = 0;
-
-  // Pour toujours avoir la balise de fin du script xml
-  if(savedDrawsXml[savedDrawsXml.length-2] == "</arkanoidelevel>"){
-    savedDrawsXml.splice(savedDrawsXml.length-1, 1);
-  }
-
-  textXmlSave = "";
-
-  for(y; y < savedDrawsXml.length; y++){
-
-    textXmlSave += savedDrawsXml[y]+'\r';
-
-  }
-
-  textXmlSave += "</arkanoidelevel>"
-
-  document.getElementById("displayXML").innerHTML = textXmlSave.replace(/</g,'&lt;').replace(/>/g,'&gt;'); 
-
-   
-  }
-
-
- 
-</script>
- 
-Paint !
-<br/>
- 
- 
-<br/>
-<table border="1">
-  <tr>
-    <th>Canvas</th>
-    <th>Tools</th>
-  </tr>
-  <tr>
-    <th rowspan="5" id = "canvaspos"> <canvas id="gameboard" width="500" height="500" > This is not supported!</canvas> </th>
-    <td><form>
-  <input type="radio" name="tools" id = "brick" value="Brick" onclick="draw();"> Brick<br>
-  <input type="radio" name="tools" id = "wall" value="Wall" onclick="draw();"> Wall
-</form></td>
-  </tr>
-    <tr>
-    <td>
-      Color </br>
-    <input type="text" id="color" value = black >
-</td>
-  </tr>
-    <tr>
-    <td>
- <input type="text" id="XMLload" >
-    </td>
-  </tr>
-    <tr>
-    <td><input type="button" value="Clear" onclick="clearboard();" /> </td>
-  </tr>
-   <tr>
-    <td>
-      Canvas size </br>
-    X : <input type="text" id="canvasX" readonly="readonly" value = 500 >
-    <input type="button" value="-" onclick="Decreaselength();" />
-    <input type="button" value="+" onclick="Increaselength();" />
-  </br>
-  Y : <input type="text" id="canvasY" readonly="readonly" value = 500 >
-    <input type="button" value="-" onclick="Decreasewidth();" />
-    <input type="button" value="+" onclick="Increasewidth();" />
-    </td>
-  </tr>
- 
-</table>
-<div>
-<p id="displayXML"></p>
-</div>
-
-</body>
+   <head>
+      <title> Paint ! </title>
+      <meta charset="UTF-8">
+   </head>
+   <body>
+      <script>
+         var canvas;
+         var ctx;
+         var imageData;
+         var tabObject = [];
+         
+         // Pour savoir si on arrête de dessiner définitivement la droite
+         var booleanWall = false;
+         var booleanBrick = false;
+         
+         
+         // Permet d'update la modif canvas car on clean a chaque fois qu'on dessine
+         var savedDraws = [];
+         var imgData = null;
+         
+         
+         //Start object
+         var startcoord = new Object();
+         startcoord.x = 0;
+         startcoord.y = 0;
+         
+         //End object
+         var endcoord = new Object();
+         endcoord.x = 0;
+         endcoord.y = 0;
+         
+         var booleanFin;
+         
+         // Variables pour XML
+         
+         // Cette variable va nous servir à concatener chaque case du tableau pour en faire un fichier xml 
+         var textXmlSave = "";
+         var varxmlDoc;
+         
+         
+         // Ce tableau permet se stocker chaque balise action dans une case pour permettre le undo
+         var savedDrawsXml = [];
+         var indexTab = 0;
+         
+         
+         savedDrawsXml.push("<arkanoidelevel>");
+         
+         /-----------------------------------------------------------------------------------/
+         
+         
+         function updateboard() {
+             var canvas = document.getElementById('gameboard');
+             canvas.width = document.getElementById("canvasY").value;
+             canvas.height = document.getElementById("canvasX").value;
+         }
+         
+         /-----------------------------------------------------------------------------------/
+         
+         function clearboard() {
+             var canvas = document.getElementById("gameboard");
+             if (!canvas.getContext) {
+                 return;
+             }
+         
+             //Board
+             var ctx = canvas.getContext("2d");
+             ctx.clearRect(0, 0, canvas.width, canvas.height);
+             savedDrawsXml.splice(0, savedDrawsXml.length + 1)
+             indexTab = 0;
+             savedDrawsXml.push("<arkanoidelevel>");
+             document.getElementById("displayXML").innerHTML = "";
+         
+         }
+         /-----------------------------------------------------------------------------------/
+         
+         
+         function restoreCanvas() {
+         
+             var ctx = canvas.getContext("2d");
+             var length = savedDraws.length;
+             var img = savedDraws[length - 1];
+             if (img != null)
+                 ctx.putImageData(img, 0, 0);
+         
+         }
+         
+         function saveCanvas() {
+             var canvas = document.getElementById("gameboard");
+             var ctx = canvas.getContext("2d");
+             var img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+             savedDraws.push(img);
+         }
+         
+         
+         
+         // Premier point, on recupère le point où on clique
+         function getFirstPoint(e) {
+             canvas = document.getElementById("gameboard");
+             var ctx = canvas.getContext("2d");
+             var rect = canvas.getBoundingClientRect();
+             var X = e.clientX - rect.left;
+             var Y = e.clientY - rect.top; // Pos Y
+         
+             startcoord.x = X;
+             startcoord.y = Y;
+         
+             if (document.getElementById('brick').checked) {
+                 booleanBrick = true;
+                 addXmlSave("brick");
+             } else if (document.getElementById('wall').checked) {
+                 booleanWall = true;
+                 addXmlSave("wall");
+             }
+         
+             booleanFin = true;
+         }
+         
+         /-----------------------------------------------------------------------------------/
+         
+         // Dernier point, on recupère le point où on arrrete de cliquer
+         function drawingEnd(e) {
+             var canvas = document.getElementById("gameboard");
+             if (!canvas.getContext) {
+                 return;
+             }
+             var ctx = canvas.getContext("2d");
+         
+         
+             if (booleanWall) {
+                 imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                 booleanWall = false;
+                 drawWall(e);
+         
+             }
+         
+         
+         
+             if (booleanBrick) {
+                 imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                 booleanBrick = false;
+                 drawBrick(e);
+         
+             }
+         
+             booleanFin = false;
+         
+         
+         }
+         
+         /-----------------------------------------------------------------------------------/
+         
+         function draw() {
+         
+             //ctx.clearRect(0,0,canvas.width,canvas.height);
+             document.getElementById("gameboard").addEventListener("mousedown", getFirstPoint);
+         
+             if (document.getElementById('brick').checked) {
+                 document.getElementById("gameboard").addEventListener("mousemove", drawBrick);
+             } else if (document.getElementById('wall').checked) {
+                 document.getElementById("gameboard").addEventListener("mousemove", drawWall);
+             }
+         
+             document.getElementById("gameboard").addEventListener("mouseup", drawingEnd);
+         
+         }
+         
+         
+         /-----------------------------------------------------------------------------------/
+         
+         function drawBrick(e) {
+         
+             var canvas = document.getElementById("gameboard");
+             if (!canvas.getContext) {
+                 return;
+             }
+             var ctx = canvas.getContext("2d");
+             var rect = canvas.getBoundingClientRect();
+         
+             if (!booleanFin) {
+                 saveCanvas();
+                 return;
+             }
+         
+             if (booleanBrick) {
+                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                 restoreCanvas();
+         
+         
+                 ctx.strokeStyle = document.getElementById("color").value;
+                 ctx.lineWidth = 1;
+                 ctx.beginPath();
+                 // Init radius
+                 endcoord.x = e.clientX - rect.left;
+                 endcoord.y = e.clientY - rect.top;
+                 var length = endcoord.x - startcoord.x
+                 var width = endcoord.y - startcoord.y;
+                 ctx.rect(startcoord.x, startcoord.y, length, width);
+                 ctx.stroke();
+                 ctx.closePath();
+         
+                 savedDrawsXml[indexTab] = "<brick color=\"" + document.getElementById("color").value + "\" left=\"" + startcoord.x + "\" top=\"" + startcoord.y + "\"  right=\"" + endcoord.x + "\" bottom=\"" + endcoord.y + "\"></brick>";
+         
+                 saveDrawXml();
+         
+             }
+         }
+         
+         
+         /-----------------------------------------------------------------------------------/
+         
+         function drawWall(e) {
+         
+             var canvas = document.getElementById("gameboard");
+             if (!canvas.getContext) {
+                 return;
+             }
+             var ctx = canvas.getContext("2d");
+             var rect = canvas.getBoundingClientRect();
+         
+             if (!booleanFin) {
+                 saveCanvas();
+                 return;
+             }
+         
+             if (booleanWall) {
+         
+                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                 restoreCanvas();
+         
+         
+                 ctx.fillStyle = document.getElementById("color").value;
+                 ctx.lineWidth = 1;
+                 // Init radius
+                 endcoord.x = e.clientX - rect.left;
+                 endcoord.y = e.clientY - rect.top;
+                 var length = endcoord.x - startcoord.x
+                 var width = endcoord.y - startcoord.y;
+                 ctx.fillRect(startcoord.x, startcoord.y, length, width);
+         
+                 savedDrawsXml[indexTab] = "<wall color=\"" + document.getElementById("color").value + "\" left=\"" + startcoord.x + "\" top=\"" + startcoord.y + "\"  right=\"" + endcoord.x + "\" bottom=\"" + endcoord.y + "\"></" + itemForm + ">";
+         
+             }
+         
+             saveDrawXml();
+         
+         }
+         
+         
+         
+         /-----------------------------------------------------------------------------------/
+         
+         function drawgameboard() {
+             var canvas = document.getElementById("gameboard");
+             if (!canvas.getContext) {
+                 return;
+             }
+         
+             //Board
+             var ctx = canvas.getContext("2d");
+             ctx.fillStyle = "black";
+             ctx.clearRect(0, 0, canvas.width, canvas.height);
+             ctx.fillRect(0, 0, canvas.width, canvas.height);
+         
+         }
+         /-----------------------------------------------------------------------------------/
+         
+         function Increasewidth() {
+             var canvaswidth = document.getElementById("canvasY");
+             canvaswidth.value++;
+             updateboard();
+         }
+         /-----------------------------------------------------------------------------------/
+         
+         function Decreasewidth() {
+             var canvaswidth = document.getElementById("canvasY");
+             if (canvaswidth.value > 1) {
+                 canvaswidth.value--;
+             } else {
+                 canvaswidth.value = canvaswidth.value;
+             }
+             updateboard();
+         }
+         
+         
+         function Increaselength() {
+             var canvaslength = document.getElementById("canvasX");
+             canvaslength.value++;
+             updateboard();
+         }
+         /-----------------------------------------------------------------------------------/
+         
+         function Decreaselength() {
+             var canvaslength = document.getElementById("canvasX");
+             if (canvaslength.value > 1) {
+                 canvaslength.value--;
+             } else {
+                 canvaslength.value = canvaslength.value;
+             }
+             updateboard();
+         }
+         /-----------------------------------------------------------------------------------/
+         
+         function addXmlSave(itemForm) {
+         
+             savedDrawsXml.push("<" + itemForm + " color=\"" + document.getElementById("color").value + "\" left=\"" + startcoord.x + "\" top=\"" + startcoord.y + "\"  right=\"" + endcoord.x + "\" bottom=\"" + endcoord.y + "\"></" + itemForm + ">");
+         
+             indexTab++;
+         
+         }
+         
+         function saveDrawXml() {
+         
+         
+             // Faut pas l'appeler i et j pcq c'est reservé et que ça provoque des catastrophes
+         
+             var y = 0;
+         
+             // Pour toujours avoir la balise de fin du script xml
+             if (savedDrawsXml[savedDrawsXml.length - 2] == "</arkanoidelevel>") {
+                 savedDrawsXml.splice(savedDrawsXml.length - 1, 1);
+             }
+         
+             textXmlSave = "";
+         
+             for (y; y < savedDrawsXml.length; y++) {
+         
+                 textXmlSave += savedDrawsXml[y] + '\r';
+         
+             }
+         
+             textXmlSave += "</arkanoidelevel>"
+         
+             document.getElementById("displayXML").innerHTML = textXmlSave.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+         
+         
+         }
+         /-----------------------------------------------------------------------------------/
+         
+         
+         function readXMLfile(){
+         
+         var xhttp = new XMLHttpRequest();
+         xhttp.onreadystatechange = function() {
+         
+         
+         if (this.readyState == 4 && this.status == 200) {
+         navigatesNodesXML(this);
+         }
+         };
+         // C'est ici qu'on met le nom du fichier XML
+         
+         xhttp.open("GET", document.getElementById("XMLLoad").value, true);
+         xhttp.send();
+         
+         }
+         /-----------------------------------------------------------------------------------/
+         
+         function navigatesNodesXML(xml){
+         
+         var canvas=document.getElementById("gameboard");
+         if(!canvas.getContext){return;}
+         var ctx=canvas.getContext("2d");
+         var rect = canvas.getBoundingClientRect();
+         
+         var x, y, xmlDoc;
+         xmlDoc = xml.responseXML;
+         var i=0;
+         var expr;
+         
+         // Var objet
+         // Manque juste a get les
+         document.getElementById("canvasY").value = xmlDoc.getElementsByTagName("arkanoidlevel")[0].getAttribute("width");
+         
+         document.getElementById("canvasX").value = xmlDoc.getElementsByTagName("arkanoidlevel")[0].getAttribute("height");
+         
+         updateboard();
+         
+         
+         for(i; i < xmlDoc.getElementsByTagName("arkanoidlevel")[0].children.length; i++){
+         x = xmlDoc.getElementsByTagName("arkanoidlevel")[0].children[i];
+         console.log(x);
+         
+         startcoord.x = x.getAttribute("left");
+         startcoord.y = x.getAttribute("top");
+         
+         ctx.strokeStyle = x.getAttribute("color");
+         ctx.beginPath();
+         
+         endcoord.x = x.getAttribute("right");
+         endcoord.y = x.getAttribute("bottom");
+         
+         if(x.nodeName == "brick"){
+         var brickObject = new Object();
+         brickObject.name = x.nodeName;
+         brickObject.left = startcoord.x;
+         brickObject.top = startcoord.y;
+         brickObject.right = endcoord.x;
+         brickObject.bottom = endcoord.y;
+         
+         tabObject.push(brickObject);
+         
+         }else{
+         
+         var wallObject = new Object();
+         wallObject.name = x.nodeName;
+         wallObject.left = startcoord.x;
+         wallObject.top = startcoord.y;
+         wallObject.right = endcoord.x;
+         wallObject.bottom = endcoord.y;
+         
+         tabObject.push(wallObject);
+         }
+         
+         var length = endcoord.x  - startcoord.x;
+         var width = endcoord.y - startcoord.x;
+         
+         ctx.rect(startcoord.x,startcoord.y, length,width);
+         ctx.stroke();
+         ctx.closePath();
+         
+         
+         
+         }
+         
+         console.log(tabObject);
+         
+         }
+         
+         /-----------------------------------------------------------------------------------/
+         
+      </script>
+      Paint !
+      <br/>
+      <br/>
+      <table border="1">
+         <tr>
+            <th>Canvas</th>
+            <th>Tools</th>
+         </tr>
+         <tr>
+            <th rowspan="5">
+               <canvas id="gameboard" , height=500, width=500> This is not supported!</canvas>
+            </th>
+            <td>
+               <form>
+                  <input type="radio" name="tools" id="brick" value="Brick" onclick="draw();"> Brick<br>
+                  <input type="radio" name="tools" id="wall" value="Wall" onclick="draw();"> Wall
+               </form>
+            </td>
+         </tr>
+         <tr>
+            <td>
+               Color </br>
+               <input type="text" id="color" value=black>
+            </td>
+         </tr>
+         <tr>
+            <td>
+               XML Load
+               <input type="text" id="XMLLoad">
+               <br>
+               <input type="button" value="Load" onclick="readXMLfile();" /> 
+            </td>
+         </tr>
+         <tr>
+            <td><input type="button" value="Clear" onclick="clearboard();" /> </td>
+         </tr>
+         <tr>
+            <td>
+               Canvas size </br>
+               X : <input type="text" id="canvasX" readonly="readonly" value=500>
+               <input type="button" value="-" onclick="Decreaselength();" />
+               <input type="button" value="+" onclick="Increaselength();" />
+               </br>
+               Y : <input type="text" id="canvasY" readonly="readonly" value=500>
+               <input type="button" value="-" onclick="Decreasewidth();" />
+               <input type="button" value="+" onclick="Increasewidth();" />
+            </td>
+         </tr>
+      </table>
+      <div>
+         <p id="displayXML"></p>
+      </div>
+   </body>
 </html>
-
-
