@@ -2,11 +2,12 @@
 <html>
    <head>
       <title> Pong ! </title>
+      <meta charset="UTF-8">
    </head>
    <body>
       <script>
          var dir; //Left or right for ball
-         var axe = Math.round(Math.random()); //up or down for ball
+         var axe = 1; //up or down for ball
          var scoreA = 1; //score for player A
          var scoreB = 1; //score for player B
          var vit; //Speed incrementation
@@ -14,14 +15,14 @@
          var lancement; //Gamestart
          var center = 0;
          var canvas;
-         
-         
+
+
          //Ball object
          var ball = new Object();
-         ball.ballx = Math.floor(Math.random() * 400) + 10;
+         ball.ballx = 100;
          ball.bally = 189;
          ball.speed = 1;
-         
+
          //Player prototype
          function Player(px, py) {
          this.px = px;
@@ -29,49 +30,49 @@
          this.pheigh = 50;
          this.pwidth = 5;
          }
-         
+
          var player1 = new Player(300, 15);
          var player2 = new Player(80, 400);
-         
+
          var tabObject = [];
-         
+
          //Start object
          var startcoord = new Object();
          startcoord.x = 0;
          startcoord.y = 0;
-         
+
          //End object
          var endcoord = new Object();
          endcoord.x = 0;
          endcoord.y = 0;
-         
+
          function drawgameboard(){
          var canvas=document.getElementById("gameboard");
          if(!canvas.getContext){return;}
-         
+
          //Board
          var ctx=canvas.getContext("2d");
          ctx.fillStyle = "#000000";
          ctx.clearRect(10,10,canvas.width,canvas.length);
-         
+
          ctx.fillRect(10,10,canvas.width,canvas.length);
-         
+
          // Ball
          ctx.fillStyle = "#3370d4";
          ctx.beginPath();
-         
+
          ctx.arc(ball.ballx,ball.bally,5,0,2*Math.PI,true);
          ctx.fill();
          ctx.stroke();
-         
+
          //Player 2
          ctx.fillStyle = "#279890";
          ctx.clearRect(player2.px,player2.py,player2.pheigh,player2.pwidth);
          ctx.fillRect(player2.px,player2.py,player2.pheigh,player2.pwidth);
          ctx.stroke();
          }
-         
-         
+
+
          function downball(){
          var canvas=document.getElementById("gameboard");
            //Modifier les endroits de la raquettes où on augmente la vitesse
@@ -109,8 +110,8 @@
          }
          }
          }
-         
-         
+
+
          function upball(){
          var canvas=document.getElementById("gameboard");
          if (ball.bally > 20){
@@ -121,8 +122,8 @@
           drawgameboard();
          }
          }
-         
-         
+
+
          function rightball(){
          var canvas=document.getElementById("gameboard");
          if ((ball.bally != canvas.width || ball.bally != 15)  && (ball.ballx <= canvas.width - 6 || ball.ballx >= 21)){
@@ -131,25 +132,25 @@
            dir = 0;
          drawgameboard();
          }
-         
+
          function leftball(){
          var canvas=document.getElementById("gameboard");
          if ((ball.bally !=  canvas.width || ball.bally != 15)  && (ball.ballx <=  canvas.width - 6 || ball.ballx >= 21)) { // verifie qu'on est pas au bord
-         
+
          ball.ballx--;
          }
          if(ball.ballx == 16 && !((ball.ballx >= player1.px-10 && ball.ballx <= player1.px+10) && ball.bally == 20))
          dir = 1;
          drawgameboard();
          }
-         
+
          //Ball movement
          function move(){
            drawgameboard();
          if (center){
            if(dir) rightball(); else leftball();
-         } 
-         
+         }
+
          if(axe) upball(); else downball();
          var xSpeed = document.getElementById("speedx");
          var ySpeed = document.getElementById("speedy");
@@ -157,14 +158,16 @@
          xSpeed.value = ball.ballx/speed*ball.speed;
          ySpeed.value = ball.bally/speed*ball.speed;
          bSpeed.value = ball.speed;
-           
+
+         detectForm();
+
          }
-         
-         
+
+
          function startball() {
          clearInterval(vit);
          }
-         
+
          function renitPosition(){
          alert("Un joueur a marqué");
          ball.ballx = Math.floor(Math.random() * 400) + 10;
@@ -176,8 +179,8 @@
          gamestart();
          ball.speed = 1;
          }
-         
-         
+
+
          //Player movement
          function leftp(px1){
          var canvas=document.getElementById("gameboard");
@@ -186,7 +189,7 @@
          }
          else {return px1;}
          }
-         
+
          function rightp(px2){
          var canvas=document.getElementById("gameboard");
          if(px2 < canvas.width - 8){
@@ -194,19 +197,19 @@
          }
          else {return px2;}
          }
-         
-         
-         
+
+
+
          // 2 players can play
          window.addEventListener("keydown", keysPressed, false);
          window.addEventListener("keyup", keysReleased, false);
-         
+
          var keys = [];
-         
+
          function keysPressed(e) {
          // store an entry for every key pressed
          keys[e.keyCode] = true;
-         
+
          if (keys[37]) {
            player2.px = leftp(player2.px);
            drawgameboard();
@@ -214,86 +217,86 @@
          if (keys[39]) {
            player2.px = rightp(player2.px);
            drawgameboard();
-         }    
          }
-         
+         }
+
          function keysReleased(e) {
          // mark keys that were released
          keys[e.keyCode] = false;
          }
-         
-         
+
+
          //Permet d'arreter le jeu
          function gamestop(){
          clearInterval(lancement);
          clearInterval(vit);
          }
-         
-         
+
+
          //Lancement jeu
          function gamestart(){
          lancement = setInterval(move,20)
          }
-         
-         
+
+
              /-----------------------------------------------------------------------------------/
-         
-         
+
+
          function readXMLfile(){
-         
+
          var xhttp = new XMLHttpRequest();
          xhttp.onreadystatechange = function() {
-         
-         
+
+
          if (this.readyState == 4 && this.status == 200) {
          navigatesNodesXML(this);
          }
          };
          // C'est ici qu'on met le nom du fichier XML
-         
+
          xhttp.open("GET", document.getElementById("XMLLoad").value, true);
          xhttp.send();
-         
+
          }
          /-----------------------------------------------------------------------------------/
-         
+
          function navigatesNodesXML(xml){
-         
+
          var canvas=document.getElementById("gameboard");
          if(!canvas.getContext){return;}
          var ctx=canvas.getContext("2d");
          var rect = canvas.getBoundingClientRect();
-         
+
          var x, y, xmlDoc;
          xmlDoc = xml.responseXML;
          var i=0;
          var expr;
-         
+
          // Var objet
          // Manque juste a get les
          document.getElementById("gameboard").width = xmlDoc.getElementsByTagName("arkanoidlevel")[0].getAttribute("width");
-         
+
          document.getElementById("gameboard").height = xmlDoc.getElementsByTagName("arkanoidlevel")[0].getAttribute("height");
-         
-         
+
+
          for(i; i < xmlDoc.getElementsByTagName("arkanoidlevel")[0].children.length; i++){
          x = xmlDoc.getElementsByTagName("arkanoidlevel")[0].children[i];
          console.log(x);
-         
+
          startcoord.x = x.getAttribute("left");
          startcoord.y = x.getAttribute("top");
-         
+
          ctx.strokeStyle = x.getAttribute("color");
          ctx.beginPath();
-         
+
          endcoord.x = x.getAttribute("right");
          endcoord.y = x.getAttribute("bottom");
-         
+
          var length = endcoord.x  - startcoord.x;
          var width = endcoord.y - startcoord.y;
-         ctx.fillStyle = "#000000"; 
+         ctx.fillStyle = "#000000";
          drawgameboard();
-         
+
          if(x.nodeName == "brick"){
          var brickObject = new Object();
          brickObject.name = x.nodeName;
@@ -301,35 +304,82 @@
          brickObject.top = startcoord.y;
          brickObject.right = endcoord.x;
          brickObject.bottom = endcoord.y;
-         
+
          tabObject.push(brickObject);
          ctx.rect(startcoord.x,startcoord.y, length,width);
-         
+
          }else{
-         
+
          var wallObject = new Object();
          wallObject.name = x.nodeName;
          wallObject.left = startcoord.x;
          wallObject.top = startcoord.y;
          wallObject.right = endcoord.x;
          wallObject.bottom = endcoord.y;
-         
+
          tabObject.push(wallObject);
          ctx.fillStyle = x.getAttribute("color");
          ctx.fillRect(startcoord.x,startcoord.y, length,width);
          }
          ctx.stroke();
          ctx.closePath();
-         
-         
-         
+
          }
-         
-         console.log(tabObject);
-         
+
          }
-         
-         
+
+
+         function detectForm(){
+           var itab = 0;
+           var canvas=document.getElementById("gameboard");
+           if(!canvas.getContext){return;}
+           var touchMur = false;
+
+           var ctx=canvas.getContext("2d");
+
+            for(itab; itab < tabObject.length; itab++){
+
+                if(tabObject[itab].bottom == ball.bally && (tabObject[itab].left <=  ball.ballx && tabObject[itab].right >=  ball.ballx)){
+
+                    axe = 0;
+                    touchMur = true;
+                }
+                else if(tabObject[itab].top == ball.bally && tabObject[itab].left <=  ball.ballx && tabObject[itab].right >=  ball.ballx){
+                    axe = 1;
+                    touchMur = true;
+                }
+                else if(tabObject[itab].left == ball.ballx && tabObject[itab].top >=  ball.bally && tabObject[itab].bottom <=  ball.bally){
+
+                  dir = 0;
+                  touchMur = true;
+                }
+
+                else if(tabObject[itab].right == ball.ballx && tabObject[itab].top >=  ball.bally && tabObject[itab].bottom <=  ball.bally){
+
+                  dir = 1;
+                  touchMur = true;
+                }
+
+                if(touchMur == true){
+                  if(tabObject[itab].name == 'brick'){
+                    var length1 = tabObject[itab].right - tabObject[itab].left;
+                    var width1 = tabObject[itab].bottom - tabObject[itab].top;
+                    //ctx.clearRect(tabObject[itab].left-1,tabObject[itab].top-1, length1+2, width1+2);
+                    tabObject.splice(itab, 1);
+                    console.log(tabObject);
+
+
+
+                  }
+                }
+
+            }
+
+         }
+
+
+
+
       </script>
       Pong!
       <br/>
